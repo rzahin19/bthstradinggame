@@ -1,0 +1,219 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.screen { display: none; padding: 1rem; }
+.screen.active { display: block; }
+.card-chip { display: inline-flex; align-items: center; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 3px 8px; font-size: 12px; font-family: var(--font-mono); }
+.card-chip.red { color: #c0392b; }
+.card-chip.clickable { cursor: pointer; }
+.card-chip.clickable:hover { opacity: 0.75; }
+.card-chip.sel { background: var(--color-background-info); border-color: var(--color-border-info); color: var(--color-text-info); }
+.btn { background: transparent; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 8px 16px; cursor: pointer; font-size: 14px; color: var(--color-text-primary); }
+.btn:hover { background: var(--color-background-secondary); }
+.btn-primary { background: var(--color-background-info); border-color: var(--color-border-info); color: var(--color-text-info); }
+.btn-danger { background: var(--color-background-danger); border-color: var(--color-border-danger); color: var(--color-text-danger); }
+.btn-success { background: var(--color-background-success); border-color: var(--color-border-success); color: var(--color-text-success); }
+.btn-warn { background: var(--color-background-warning); border-color: var(--color-border-warning); color: var(--color-text-warning); }
+.metric-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+.metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 500; }
+.section-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; }
+.trade-row { border-bottom: 0.5px solid var(--color-border-tertiary); padding: 10px 0; font-size: 13px; }
+.trade-row:last-child { border-bottom: none; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); }
+.badge-pending { background: var(--color-background-warning); color: var(--color-text-warning); }
+.badge-accepted { background: var(--color-background-success); color: var(--color-text-success); }
+.badge-rejected { background: var(--color-background-danger); color: var(--color-text-danger); }
+input[type=text], input[type=number], select { width: 100%; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 8px 10px; font-size: 14px; background: var(--color-background-primary); color: var(--color-text-primary); }
+.tabs { display: flex; gap: 4px; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 1rem; }
+.tab { padding: 8px 14px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--color-text-secondary); }
+.tab.active { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); }
+.cards-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.rule-note { font-size: 12px; color: var(--color-text-warning); background: var(--color-background-warning); border-radius: var(--border-radius-md); padding: 6px 10px; margin-bottom: 10px; }
+</style>
+
+<div id="login-screen" class="screen active">
+  <div style="max-width:400px; margin:2rem auto;">
+    <p style="font-size:22px; font-weight:500; margin-bottom:4px;">Market trading sim</p>
+    <p style="font-size:14px; color:var(--color-text-secondary); margin-bottom:1.5rem;">Brooklyn Tech math team</p>
+    <div class="section-card">
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px; color:var(--color-text-secondary); display:block; margin-bottom:4px;">Select your team</label>
+        <select id="login-team-select"><option value="">— choose team —</option></select>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px; color:var(--color-text-secondary); display:block; margin-bottom:4px;">Team PIN</label>
+        <input type="number" id="login-pin" placeholder="4-digit PIN" />
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">Enter trading floor</button>
+      <div style="text-align:center; margin-top:12px;">
+        <span style="font-size:12px; color:var(--color-text-secondary);">Host? </span>
+        <span style="font-size:12px; color:var(--color-text-info); cursor:pointer;" onclick="showScreen('host-login-screen')">Sign in here</span>
+      </div>
+    </div>
+    <div id="login-error" style="color:var(--color-text-danger); font-size:13px; text-align:center; margin-top:8px;"></div>
+  </div>
+</div>
+
+<div id="host-login-screen" class="screen">
+  <div style="max-width:360px; margin:2rem auto;">
+    <p style="font-size:20px; font-weight:500; margin-bottom:1.5rem;">Host sign in</p>
+    <div class="section-card">
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px; color:var(--color-text-secondary); display:block; margin-bottom:4px;">Host PIN</label>
+        <input type="number" id="host-pin-input" placeholder="PIN" />
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="doHostLogin()">Sign in</button>
+      <div style="text-align:center; margin-top:10px;"><span style="font-size:12px; color:var(--color-text-info); cursor:pointer;" onclick="showScreen('login-screen')">Back</span></div>
+    </div>
+    <div id="host-login-error" style="color:var(--color-text-danger); font-size:13px; text-align:center; margin-top:8px;"></div>
+  </div>
+</div>
+
+<div id="setup-screen" class="screen">
+  <div style="max-width:700px; margin:0 auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+      <p style="font-size:20px; font-weight:500;">Setup</p>
+      <button class="btn" onclick="showScreen('host-screen')">Dashboard</button>
+    </div>
+    <div class="section-card">
+      <p style="font-weight:500; margin-bottom:8px;">Register teams</p>
+      <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:10px;">Each team starts with all 52 cards and the starting capital below.</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr 80px; gap:8px; margin-bottom:8px;">
+        <input id="new-team-name" placeholder="Team name" type="text" />
+        <input id="new-team-pin" placeholder="PIN (4 digits)" type="number" />
+        <button class="btn btn-primary" onclick="addTeam()">Add</button>
+      </div>
+      <div id="team-list"></div>
+    </div>
+    <div class="section-card">
+      <p style="font-weight:500; margin-bottom:10px;">Starting capital</p>
+      <div style="display:grid; grid-template-columns:1fr 100px; gap:8px;">
+        <input id="starting-capital" type="number" value="1500" />
+        <button class="btn btn-primary" onclick="applyCapital()">Apply all</button>
+      </div>
+    </div>
+    <button class="btn btn-success" style="width:100%;" onclick="finalizeSetup()">Open trading</button>
+    <div id="setup-msg" style="font-size:13px; text-align:center; margin-top:8px; color:var(--color-text-secondary);"></div>
+  </div>
+</div>
+
+<div id="host-screen" class="screen">
+  <div style="max-width:960px; margin:0 auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:8px;">
+      <p style="font-size:20px; font-weight:500;">Host dashboard</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn" onclick="showScreen('setup-screen')">Setup</button>
+        <button class="btn btn-warn" onclick="showScreen('values-screen')">Card values</button>
+        <button class="btn" onclick="doLogout()">Log out</button>
+      </div>
+    </div>
+    <div id="host-portfolios"></div>
+    <div class="section-card" style="margin-top:4px;">
+      <p style="font-weight:500; margin-bottom:10px;">Transaction log</p>
+      <div id="host-tx-log"></div>
+    </div>
+  </div>
+</div>
+
+<div id="values-screen" class="screen">
+  <div style="max-width:600px; margin:0 auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+      <p style="font-size:20px; font-weight:500;">Card values</p>
+      <div style="display:flex; gap:8px;">
+        <button class="btn" onclick="saveCardValues()">Save</button>
+        <button class="btn" onclick="showScreen('host-screen')">Back</button>
+      </div>
+    </div>
+    <div class="section-card" style="margin-bottom:12px;">
+      <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:14px;">Enter the true value for each rank. Hidden from teams until you reveal.</p>
+      <div id="rank-value-inputs" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;"></div>
+      <button class="btn" style="width:100%; margin-top:14px;" onclick="saveCardValues()">Save values</button>
+      <div id="values-save-msg" style="font-size:13px; color:var(--color-text-success); text-align:center; margin-top:6px;"></div>
+    </div>
+    <div class="section-card">
+      <p style="font-weight:500; margin-bottom:8px;">Reveal &amp; score</p>
+      <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:12px;">Press when trading ends to show all values and calculate final standings.</p>
+      <button class="btn btn-warn" style="width:100%; font-size:15px; padding:12px;" onclick="doReveal()">Reveal values &amp; calculate scores</button>
+    </div>
+  </div>
+</div>
+
+<div id="results-screen" class="screen">
+  <div style="max-width:700px; margin:0 auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+      <p style="font-size:20px; font-weight:500;">Final results</p>
+      <button class="btn" onclick="showScreen('host-screen')">Back</button>
+    </div>
+    <div id="results-content"></div>
+  </div>
+</div>
+
+<div id="team-screen" class="screen">
+  <div style="max-width:700px; margin:0 auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <div>
+        <p id="team-screen-name" style="font-size:20px; font-weight:500;"></p>
+        <p id="team-screen-status" style="font-size:13px; color:var(--color-text-secondary);">Trading floor is open</p>
+      </div>
+      <button class="btn" onclick="doLogout()">Log out</button>
+    </div>
+    <div id="team-results-banner" style="display:none; background:var(--color-background-warning); border:0.5px solid var(--color-border-warning); border-radius:var(--border-radius-lg); padding:1rem 1.25rem; text-align:center; margin-bottom:12px;"></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:1rem;">
+      <div class="metric-card"><div class="metric-label">Cash</div><div class="metric-value" id="t-cash">—</div></div>
+      <div class="metric-card"><div class="metric-label">Cards held</div><div class="metric-value" id="t-card-count">—</div></div>
+      <div class="metric-card"><div class="metric-label">Trades done</div><div class="metric-value" id="t-trade-count">—</div></div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('portfolio-tab',this)">My portfolio</div>
+      <div class="tab" onclick="switchTab('propose-tab',this)">Propose trade</div>
+      <div class="tab" onclick="switchTab('inbox-tab',this)">Inbox <span id="inbox-badge" style="display:none; background:var(--color-background-danger); color:var(--color-text-danger); border-radius:999px; font-size:11px; padding:1px 6px; margin-left:4px;"></span></div>
+    </div>
+    <div id="portfolio-tab">
+      <div class="section-card">
+        <p style="font-weight:500; margin-bottom:10px;">My cards</p>
+        <div id="my-cards-grid" class="cards-grid"></div>
+      </div>
+    </div>
+    <div id="propose-tab" style="display:none;">
+      <div class="section-card">
+        <p style="font-weight:500; margin-bottom:8px;">New trade proposal</p>
+        <div class="rule-note">All trades must be cash for cards or cards for cash — no cash-only or cards-only trades.</div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12px; color:var(--color-text-secondary); display:block; margin-bottom:4px;">Trade with</label>
+          <select id="trade-target-team" onchange="onTargetChange()"><option value="">— select team —</option></select>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div>
+            <p style="font-size:12px; font-weight:500; color:var(--color-text-secondary); margin-bottom:8px;">You give</p>
+            <p style="font-size:11px; color:var(--color-text-secondary); margin-bottom:4px;">Cards (tap to select)</p>
+            <div id="my-offer-cards" class="cards-grid" style="min-height:40px; padding:6px; border:0.5px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); margin-bottom:8px;"></div>
+            <p style="font-size:11px; color:var(--color-text-secondary); margin-bottom:4px;">Cash ($)</p>
+            <input type="number" id="my-offer-cash" placeholder="0" min="0" oninput="onCashInput()" />
+          </div>
+          <div>
+            <p style="font-size:12px; font-weight:500; color:var(--color-text-secondary); margin-bottom:8px;">You receive</p>
+            <p style="font-size:11px; color:var(--color-text-secondary); margin-bottom:4px;">Their cards (tap to select)</p>
+            <div id="their-offer-cards" class="cards-grid" style="min-height:40px; padding:6px; border:0.5px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); margin-bottom:8px;"></div>
+            <p style="font-size:11px; color:var(--color-text-secondary); margin-bottom:4px;">Cash ($)</p>
+            <input type="number" id="their-offer-cash" placeholder="0" min="0" oninput="onCashInput()" />
+          </div>
+        </div>
+        <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn" onclick="clearTrade()">Clear</button>
+          <button class="btn btn-primary" onclick="submitTrade()">Send proposal</button>
+        </div>
+        <div id="trade-msg" style="font-size:13px; margin-top:8px;"></div>
+      </div>
+    </div>
+    <div id="inbox-tab" style="display:none;">
+      <div class="section-card">
+        <p style="font-weight:500; margin-bottom:10px;">Incoming proposals</p>
+        <div id="inbox-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="akzel.js"></script>
